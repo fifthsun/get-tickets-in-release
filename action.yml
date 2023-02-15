@@ -26,6 +26,6 @@ runs:
       shell: bash
       run: |
         TICKETS=$(git log ${{ env.previous }}..${{ env.current }} \
-          | awk 'match($0, /${{ inputs.jira_project }}-[[:digit:]]+/) { print substr($0, RSTART, RLENGTH) }' \
+          | awk 'match($0, /${{ inputs.project }}-[[:digit:]]+/) { print substr($0, RSTART, RLENGTH) }' \
           | sort -r -V | uniq | xargs echo)
         echo "tickets=$TICKETS" >> $GITHUB_OUTPUT
