@@ -17,8 +17,8 @@ runs:
       shell: bash
       id: get-release
       run: |
-        CURRENT=$(git describe --abbrev=0 --tags)
-        PREVIOUS=$(git describe --abbrev=0 --tags --exclude="$(git describe --abbrev=0 --tags)")
+        CURRENT="${{ github.event.release.tag_name }}"
+        PREVIOUS="$(git tag | grep ^v | sort -r -V | sed -n 2p)"
         echo "current=${CURRENT}" >> $GITHUB_ENV
         echo "previous=${PREVIOUS}" >> $GITHUB_ENV
     - name: Get ticket list
