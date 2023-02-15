@@ -1,0 +1,31 @@
+name: get-tickets-in-release
+description: |
+   Get a list of tickets referenced in the commits 
+   between current and previous github releases.
+author: out-of-mana 
+inputs:
+  project:
+    description: Three letter prefix to identify tickets
+outputs:
+  tickets:
+    description: A list of tickets detected in merged branches
+    value: ${{ steps.get-ticket-list.outputs.tickets }}
+runs:
+  using: "composite"
+  steps:
+    - name: Get release info
+      shell: bash
+      id: get-release
+      run: |
+        CURRENT=$(git describe --abbrev=0 --tags)
+        PREVIOUS=$(git describe --abbrev=0 --tags --exclude="$(git describe --abbrev=0 --tags)")
+        echo "current=${CURRENT}" >> $GITHUB_ENV
+        echo "previous=${PREVIOUS}" >> $GITHUB_ENV
+    - name: Get ticket list
+      id: get-ticket-list
+      shell: bash
+      run: |
+        TICKETS=$(git log ${{ env.previous }}..${{ env.current }} \
+          | awk 'match($0, /${{ inputs.jira_project }}-[[:digit:]]+/) { print substr($0, RSTART, RLENGTH) }' \
+          | sort -r -V | uniq | xargs echo)
+        echo "tickets=$TICKETS" >> $GITHUB_OUTPUT
